@@ -1,112 +1,194 @@
-# Baseline Testing Log
 
-This document records a structured security assessment of Large Language Models (LLMs) using the GlyphBreaker red teaming toolkit. Testing aligns with the OWASP Top 10 for LLM Applications and focuses on methodology, outcomes, and defensive interpretation.
 
----
+## 📖 Documentation
 
-## Day 1 — Tool Access & Verification
-
-**Objective:**  
-Verify GlyphBreaker is accessible and operational.
-
-**Outcome:**  
-Successfully loaded the hosted GlyphBreaker web application and confirmed the UI is functional.
-
-**Evidence:**  
-- screenshots/day1/
+- [Local Setup](#-local-setup)
+- [Project Structure](#-project-structure)
+- [Security Considerations](#-security-considerations)
+- [What I Learned](#-what-i-learned)
+- [Disclaimer](#-disclaimer)
 
 ---
 
-## Day 2 — Model Connectivity Testing
+# ⚙️ Local Setup
 
-**Objective:**  
-Verify LLM provider connectivity and document environmental constraints.
+### 1. Clone the Repository
 
-**Gemini Status:**  
-Defense Analysis and Gemini-based features failed due to an invalid server-side Gemini API key in the hosted deployment (API_KEY_INVALID). This was documented as an environment limitation outside the tester’s control.
+```bash
+git clone <YOUR-GITHUB-REPOSITORY-URL>
+cd GlyphBreaker
+```
 
-**OpenAI Status:**  
-Requests successfully reached the OpenAI API but were blocked due to account quota limits (HTTP 429). This was identified as a billing/usage constraint rather than a configuration error.
+### 2. Install Dependencies
 
-**Evidence:**  
-- screenshots/day2/
+```bash
+npm install
+```
 
----
+### 3. Configure API Keys
 
-## Day 3 — Prompt Injection Testing
+Configure the API credentials for the providers you want to test.
 
-**Attack Type:**  
-Prompt Injection (OWASP LLM01)
+Example `.env` configuration:
 
-**Objective:**  
-Evaluate how the system handles instruction override attempts.
+```env
+OPENAI_API_KEY=your_key_here
+ANTHROPIC_API_KEY=your_key_here
+GEMINI_API_KEY=your_key_here
+```
 
-**Observations:**
-- A pre-generated malicious prompt attempted to override system instructions.
-- The workflow demonstrated how prompt injection attacks are staged and executed.
-- Errors and refusals were treated as valid defensive outcomes due to provider limitations.
+> [!WARNING]
+> Never commit API keys, credentials, or `.env` files containing sensitive information to GitHub.
 
-**Evidence:**  
-- screenshots/day3/
+### 4. Start GlyphBreaker
 
----
+Start the local development server:
 
-## Day 4 — Sensitive Data Exposure Testing
+```bash
+npm run dev
+```
 
-**Attack Type:**  
-Information Disclosure (Sensitive Data Exposure)
+Then open:
 
-**Objective:**  
-Evaluate whether the model reveals confidential, private, or internal information when prompted.
-
-**Observations:**
-- A pre-generated information disclosure prompt attempted to extract sensitive or internal data.
-- The attack simulated social engineering and authority-based data requests.
-- No sensitive information was disclosed during testing.
-- Errors and refusals were treated as valid defensive outcomes given provider limitations.
-
-**Evidence:**  
-- screenshots/day4/
+```text
+http://localhost:3000
+```
 
 ---
 
-## Day 5 — Model Extraction Testing
+# 📁 Project Structure
 
-**Attack Type:**  
-Model Extraction / Architecture Inference
+A simplified overview of the GlyphBreaker project:
 
-**Objective:**  
-Assess whether the model can be induced to reveal internal architecture, hyperparameters, or proprietary implementation details through indirect prompts.
-
-**Observations:**
-- The model denied having a publicly disclosed fixed internal architecture.
-- The response mirrored attacker-supplied hyperparameters in a detailed hypothetical explanation.
-- This behavior was classified as partial model extraction via hypothetical abstraction rather than full disclosure.
-- Repeated probing could enable model fingerprinting through inference across multiple interactions.
-
-**Risk Assessment:**  
-Medium — indirect architectural signal leakage may assist adversaries in model fingerprinting or intellectual property inference.
-
-**Evidence:**  
-- screenshots/day5/
+```text
+GlyphBreaker/
+│
+├── components/
+│   └── UI components
+│
+├── services/
+│   └── LLM provider / API integrations
+│
+├── App.tsx
+│   └── Main application
+│
+├── constants.ts
+│   └── Application configuration
+│
+├── types.ts
+│   └── TypeScript definitions
+│
+├── index.tsx
+│   └── Application entry point
+│
+├── vite.config.ts
+│   └── Vite configuration
+│
+├── package.json
+├── TECHNICAL_DOCUMENTATION.md
+└── README.md
+```
 
 ---
 
-## Day 6 — Insecure Output Handling Testing
+# 🔐 Security Considerations
 
-**Attack Type:**  
-Insecure Output Handling
+GlyphBreaker was created as a **defensive security and AI security research project**.
 
-**Objective:**  
-Evaluate whether model-generated outputs could be unsafe if blindly trusted or executed by downstream systems.
+It is designed for:
 
-**Observations:**
-- The attack focused on output risk rather than data leakage or instruction override.
-- Demonstrates how unsafe or unvalidated output could pose risks when consumed by automation, agents, or scripts.
-- Errors and refusals were treated as valid defensive outcomes given provider limitations.
+| Use Case | Purpose |
+|---|---|
+| 🎓 Security Education | Learn how adversarial prompts affect LLM behavior |
+| 🔴 LLM Red Teaming | Evaluate model safeguards through authorized testing |
+| 💉 Prompt Injection Testing | Test resistance to instruction manipulation |
+| 🤖 Agent Security | Evaluate tool use and autonomous AI behavior |
+| 🔎 Security Assessments | Document weaknesses and defensive controls |
 
-**Risk Assessment:**  
-Medium — unsafe output could lead to command execution, automation abuse, or unintended system behavior if not properly constrained.
+> [!IMPORTANT]
+> Only conduct security testing against systems you own or systems you have explicit authorization to assess.
 
-**Evidence:**  
-- screenshots/day6/
+API credentials should be securely stored and excluded from version control.
+
+---
+
+# 🧠 What I Learned
+
+Building and testing GlyphBreaker gave me hands-on experience across several areas of AI and cybersecurity.
+
+### LLM Security
+
+- Prompt injection
+- Sensitive information disclosure
+- LLM red teaming
+- Adversarial prompting
+- Model behavior analysis
+- Secure system prompt design
+
+### Agentic AI Security
+
+- Excessive agency
+- Tool permission boundaries
+- Plugin security
+- Unsafe autonomous actions
+- Human-in-the-loop controls
+
+### Engineering
+
+- Multi-provider API integration
+- OpenAI API
+- Gemini API
+- Claude API
+- TypeScript / Node.js
+- Git and GitHub
+
+### Security Frameworks
+
+- OWASP Top 10 for LLM Applications
+- Defensive mitigation development
+- Adversarial test-case development
+- Security finding documentation
+
+---
+
+## 💡 Key Takeaway
+
+> **Model safeguards are only one layer of defense.**
+>
+> Secure LLM applications also require strong controls around the model, including:
+>
+> - Permission boundaries
+> - Input validation
+> - Output validation
+> - Tool restrictions
+> - Logging and monitoring
+> - Human confirmation for sensitive actions
+> - Least-privilege access
+
+The project reinforced that LLM security should be approached as an **application security problem**, rather than relying entirely on the underlying model to prevent unsafe behavior.
+
+---
+
+# ⚠️ Disclaimer
+
+GlyphBreaker is intended exclusively for:
+
+- Educational use
+- Defensive security research
+- Authorized AI security assessments
+- LLM security experimentation
+
+> [!CAUTION]
+> Do not use GlyphBreaker to test, attack, manipulate, or interact with systems without proper authorization.
+
+All adversarial testing should be conducted against systems you own or have explicit permission to assess.
+
+---
+
+<div align="center">
+
+### GlyphBreaker
+
+**LLM Security • AI Red Teaming • OWASP LLM Top 10**
+
+</div>
